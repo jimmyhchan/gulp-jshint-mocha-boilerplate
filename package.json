@@ -2,7 +2,7 @@
   "name": "awesome-name-here",
   "version": "0.0.0",
   "description": "a library that does aweome stuff",
-  "main": "lib/index.js",
+  "main": "dist/awesome-name-here.js",
   "directories": {
     "test": "test"
   },
@@ -19,8 +19,10 @@
     "del": "^0.1.3",
     "gulp": "^3.8.10",
     "gulp-concat": "^2.4.2",
+    "gulp-header": "^1.2.2",
     "gulp-jshint": "^1.9.0",
     "gulp-mocha": "^2.0.0",
+    "gulp-replace": "^0.5.0",
     "gulp-uglify": "^1.0.1",
     "gulp-util": "^3.0.1",
     "jshint-stylish": "^1.0.0",
