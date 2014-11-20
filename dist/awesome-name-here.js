@@ -4,4 +4,10 @@
  * @link 
  * @licence none
  */
-var awesome={};awesome.version="0.0.0",module.exports=awesome;
+var awesome = {};
+
+awesome.version = '0.0.0';
+
+
+module.exports = awesome;
+

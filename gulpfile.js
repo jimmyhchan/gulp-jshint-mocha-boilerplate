@@ -20,7 +20,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('clean', function() {
-  del('dist');
+  del('dist/*');
 });
 
 
@@ -33,18 +33,23 @@ var appFiles = 'src/**/*.js',
               ' * @licence <%= pkg.license %>',
               ' */',
               ''].join('\n');
-gulp.task('package', function() {
-  // to do pack an unminified version as well
-  //       pack license as well
-  //       add version numbers into the files
+
+function packer(config) {
+  var minify = config.minify || false;
   return gulp.src(appFiles)
          .pipe(replace('@@version', version))
-         .pipe(concat(pkgName + '-min.js'))
-         .pipe(uglify())
+         .pipe(minify ? concat(pkgName + '-min.js') : concat(pkgName+'.js'))
+         .pipe(minify ? uglify(): gutil.noop())
          .pipe(header(banner, {pkg:pkg}))
          .pipe(jshint('.jshintrc'))
          .pipe(jshint.reporter('jshint-stylish'))
          .pipe(gulp.dest('dist'));
+}
+gulp.task('packDev', function() {
+  return packer({minify:false});
+});
+gulp.task('packProd', function() {
+  return packer({minify:true});
 });
 
 gulp.task('test', function() {
@@ -52,5 +57,6 @@ gulp.task('test', function() {
          .pipe(mocha());
 });
 
+gulp.task('package', ['packDev', 'packProd']);
 gulp.task('build', ['lint', 'clean', 'package']);
 gulp.task('default', ['build', 'test']);
