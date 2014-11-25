@@ -8,12 +8,20 @@ var gulp = require('gulp'),
     del = require('del'),
     gutil = require('gulp-util'),
     mkdir = require('mkdirp'),
-    template = gutil.template,
-    log = gutil.log,
     mocha = require('gulp-mocha'),
+    es = require('event-stream'),
     DIST = './dist',
     TMP = './tmp';
-    es = require('event-stream');
+
+var appFiles = 'src/**/*.js',
+    testFiles = 'test/**/*.spec.js',
+    banner = ['/*!',
+              ' * <%= pkg.name %> - <%= pkg.description %>',
+              ' * @version v<%= pkg.version %>',
+              ' * @link <%= pkg.homepage %>',
+              ' * @licence <%= pkg.license %>',
+              ' */',
+              ''].join('\n');
 
 gulp.task('lint', function() {
   return gulp.src('src/*.js')
@@ -28,16 +36,6 @@ gulp.task('clean', function(cb) {
 gulp.task('cleanDist', function(cb) {
   del(DIST, cb);
 });
-
-var appFiles = 'src/**/*.js',
-    testFiles = 'test/**/*.spec.js',
-    banner = ['/*!',
-              ' * <%= pkg.name %> - <%= pkg.description %>',
-              ' * @version v<%= pkg.version %>',
-              ' * @link <%= pkg.homepage %>',
-              ' * @licence <%= pkg.license %>',
-              ' */',
-              ''].join('\n');
 
 gulp.task('mkTmp', ['clean'], function(cb) {
   mkdir(TMP, cb);
@@ -64,12 +62,6 @@ function buildAll() {
     packer({minify: true})
   );
 }
-// gulp.task('packDev', function() {
-  // return packer({minify:false});
-// });
-// gulp.task('packProd', function() {
-  // return packer({minify:true});
-// });
 
 gulp.task('bumpPatch', function() {
   return gulp.src(['./*.json'])
@@ -81,10 +73,17 @@ gulp.task('bumpMinor', function() {
   .pipe(bump({type:'minor'}))
   .pipe(gulp.dest('./'));
 });
-// gulp.task('distribute', function() {
-  // return gulp.src('tmp/**/*.js')
-         // .pipe(gulp.dest(DIST));
-// });
+function _release() {
+  gulp.src('tmp/**/*.js')
+         .pipe(gulp.dest(DIST));
+  gutil.log(['now do the following:',
+             '  * git add -A',
+             '  * git commit -m "releasing version x.x.x"',
+             '  * git tag -a vx.x.x -m "tagging version x.x.x"...',
+             '  * git push origin ',
+             '  * git push origin --tags'].join('\n'));
+}
+
 gulp.task('test', ['build'], function() {
   return gulp.src(testFiles)
          .pipe(mocha());
@@ -94,15 +93,6 @@ gulp.task('build', ['lint', 'mkTmp'], buildAll);
 gulp.task('patchBuild', ['lint', 'mkTmp', 'bumpPatch'], buildAll);
 gulp.task('minorBuild', ['lint', 'mkTmp', 'bumpMinor'], buildAll);
 
-function _release() {
-  gulp.src('tmp/**/*.js')
-         .pipe(gulp.dest(DIST));
-  gutil.log(['now do the following:',
-             '  * git add -A',
-             '  * git commit -m "releasing version x.x.x"',
-             '  * git tag...',
-             '  * git push ... '].join('\n'));
-}
 gulp.task('releasePatch', ['patchBuild', 'mkDist'], _release);
 gulp.task('releaseMinor', ['minorBuild', 'mkDist'], _release);
 gulp.task('default', ['test']);
