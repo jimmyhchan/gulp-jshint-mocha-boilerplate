@@ -4,12 +4,12 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     bump = require('gulp-bump'),
     header = require('gulp-header'),
+    rename = require('gulp-rename'),
     replace = require('gulp-replace'),
     del = require('del'),
     gutil = require('gulp-util'),
     mkdir = require('mkdirp'),
     mocha = require('gulp-mocha'),
-    es = require('event-stream'),
     DIST = './dist',
     TMP = './tmp';
 
@@ -44,23 +44,21 @@ gulp.task('mkDist', ['cleanDist'], function(cb) {
   mkdir(DIST, cb);
 });
 function packer(config) {
-  var minify = config.minify || false,
-      pkg = require('./package.json');
+  var pkg = require('./package.json');
   return gulp.src(appFiles)
          .pipe(replace('@@version', pkg.version))
-         .pipe(minify ? concat(pkg.name + '-min.js') : concat(pkg.name+'.js'))
-         .pipe(minify ? uglify(): gutil.noop())
          .pipe(header(banner, {pkg:pkg}))
+         .pipe(concat(pkg.name+'.js'))
          .pipe(jshint('.jshintrc'))
          .pipe(jshint.reporter('jshint-stylish'))
+         .pipe(gulp.dest(TMP))
+         .pipe(rename(pkg.name + '-min.js'))
+         .pipe(uglify({preserveComments: 'some'}))
          .pipe(gulp.dest(TMP));
 }
 
 function buildAll() {
-  return es.concat(
-    packer({minify: false}),
-    packer({minify: true})
-  );
+  return packer();
 }
 
 gulp.task('bumpPatch', function() {
