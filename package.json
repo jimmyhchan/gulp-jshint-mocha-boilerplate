@@ -2,6 +2,7 @@
   "name": "awesome-name-here",
   "version": "0.0.0",
   "description": "a library that does aweome stuff",
+  "homepage": "localhost",
   "main": "dist/awesome-name-here.js",
   "directories": {
     "test": "test"

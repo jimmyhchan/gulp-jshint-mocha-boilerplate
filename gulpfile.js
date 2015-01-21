@@ -19,7 +19,7 @@ var appFiles = 'src/**/*.js',
               ' * <%= pkg.name %> - <%= pkg.description %>',
               ' * @version v<%= pkg.version %>',
               ' * @link <%= pkg.homepage %>',
-              ' * @licence <%= pkg.license %>',
+              ' * @license <%= pkg.license %>',
               ' */',
               ''].join('\n');
 
